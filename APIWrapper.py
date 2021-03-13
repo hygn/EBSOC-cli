@@ -2,7 +2,6 @@ import sys
 import json
 import requests
 platform = sys.platform
-#authToken ='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJPbmxpbmUgQ2xhc3MiLCJtZW1iZXJOYW1lIjoi7J6l7Iuc7JiBIiwibWVtYmVyU2Nob29sQ29kZSI6IkgwOTE1OCIsImV4cCI6MTYxNTA4MjAwNiwiaWF0IjoxNjE0ODIyODA2LCJtZW1iZXJJZCI6ImthQDEyNjgwOTk3In0.3xFHhJbJdFRkVKTW44HNVWYmUX7JngH3u-jdLUt-iBM'
 userAgent = f'EBSErrorSolver(AKA.Etiquette Injector)/0.1 ({platform};) Python Requests'
 def classList(cookies,AuthToken):
     headers = {'User-Agent':userAgent,
