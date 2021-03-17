@@ -61,7 +61,7 @@ def createAPICheck(cookies,AuthToken,contentsSeq,contentsTypeCode,lectureSeq,les
                'schoolCode': schoolCode}
     payload = json.dumps(payload)
     if lectureLearningSeq == None:
-        data = requests.post(f'https://cln.ebsoc.co.kr/common_domain/lecture/api/v1/lesson/lecture/attend/',
+        data = requests.post(f'https://cln.ebsoc.co.kr/common_domain/lecture/api/v1/lesson/lecture/attend/create',
                              headers=headers,data=payload)
     jsonData = json.loads(data.content.decode('utf-8'))
     try:

@@ -2,20 +2,41 @@ from application_functions import *
 import APIWrapper
 import cookie
 import time
+if readCfg()['cfgLock'] != 'yes':
+    decfg = input('edit config?(y)')
+else:
+    decfg = 'n'
+if decfg == 'y':
+    while True:
+        printCfg()
+        arg = input('cfgname = ')
+        if arg == 'exit':
+            break
+        dat = input('value = ')
+        if arg in [item[0] for item in cfgList]:
+            editCfg(arg,dat)
+        else:
+            print('올바른 설정을 입력해주세요')
+        input()
+        clear()
 print('\033[95m Logging in... \033[0m')
 cookies = cookie.query('')
 auth = cookie.getAuth('')
 memberSeq = cookie.getMembSeq('')
 try:
-    for i in range(10):
+    try:
+        attemptCount = readCfg()['loginAttempt']
+    except:
+        attemptCount = defaultCfg[5]
+    for i in range(attemptCount):
         try:
             memberData = APIWrapper.userDetail(cookies,auth,memberSeq)
             classList = APIWrapper.classList(cookies,auth)
             break
         except KeyError:
-            time.sleep(10)
+            time.sleep(5)
             if i == 9:
-                raise
+                raise KeyError
             else:
                 pass
 except KeyError:
@@ -77,6 +98,7 @@ while True:
     elif len(msgdepth) == 3:
         for i in lectureIndex:
             learn(lectureList[i],cookies,auth,memberSeq)
-        msgdepth = []
+        msgdepth.pop(2)
+        lectureList = APIWrapper.lectureList(cookies,auth,classList[classIndex]['classUrlPath'],lessonList[lessonIndex]['lessonSeq'])
         input()
         clear()
