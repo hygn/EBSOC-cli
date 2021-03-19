@@ -23,13 +23,19 @@ if decfg == 'y':
         clear()
 debug = readCfg()['debug']
 print('\033[95m Logging in... \033[0m')
-cookies = cookie.query('')
-if debug == 'yes': print(cookies)
-auth = cookie.getAuth('')
-if debug == 'yes': print(auth)
-memberSeq = cookie.getMembSeq('')
-if debug == 'yes': print(memberSeq)
 try:
+    cookies = cookie.query('')
+    if debug == 'yes': print(cookies)
+    auth = cookie.getAuth('')
+    if debug == 'yes': print(auth)
+    memberSeq = cookie.getMembSeq('')
+    if debug == 'yes': print(memberSeq)
+except:
+    print('\033[91m cookie not detected \033[0m')
+    cookies = None
+try:
+    if cookies == None:
+        raise KeyError
     try:
         attemptCount = readCfg()['loginAttempt']
     except:

@@ -9,7 +9,7 @@ def readCfg():
     try:
         cfg = open(os.path.join(os.path.dirname(__file__),'EBSOC-cli.cfg'),'r').read()
     except FileNotFoundError:
-        print('설정 파일이 올바르지 않습니다')
+        print('설정 파일이 올바르지 않습니다.')
         input()
         quit()
     cfgs = {}
@@ -89,7 +89,7 @@ def learn(lectureData,cookies,auth,memberSeq):
     config = readCfg()
     import wget
     lectureDetail = APIWrapper.lectureDetail(cookies,auth,lectureData['lessonSeq'])
-    print(f"강의 정보 받기에 성공했습니다.")
+    print(f"\033[92m 강의 정보 받기에 성공했습니다.\033[0m")
     try:
         print(lectureDetail['lectureContentsDto']['lectureContentsTextDto']['textContents'])
     except:
@@ -97,8 +97,18 @@ def learn(lectureData,cookies,auth,memberSeq):
     try:
         for i in lectureDetail['lectureContentsDto']['lectureContentsDocImageDtoList']['lectureContentsDocImageDtoList']:
             if config['saveFile'] == 'yes':
-                wget.download(i['fileleDto']['fileStoragePath'],out=i['fileleDto']['originalFileName'])
-                print('\n')
+                try:
+                    wget.download(i['fileleDto']['fileStoragePath'],out=i['fileleDto']['originalFileName'])
+                    print('\n')
+                except:
+                    print('\033[95m Fall back to newFileDownloadAPI\033[0m')
+                    print('Downloading...')
+                    data = APIWrapper.newFileDownload(cookies,auth,i['fileleDto']['fileDetailId'])
+                    if data == None:
+                        print('\033[91m 강의 다운로드에 실패했습니다.\033[0m')
+                    else:
+                        open(i['fileleDto']['originalFileName'],'a')
+                        open(i['fileleDto']['originalFileName'],'wb').write(data)
         playTime = None
         runcount = 1
     except:
@@ -121,8 +131,11 @@ def learn(lectureData,cookies,auth,memberSeq):
                         print('youtube-dl 오류가 발생했습니다')
             else:
                 if config['saveEBSVideo'] == 'yes':
-                    wget.download(lecturl,out=f"{lectureDetail['lectureName']}.mp4")
-                    print('\n')
+                    try:
+                        wget.download(lecturl,out=f"{lectureDetail['lectureName']}.mp4")
+                        print('\n')
+                    except:
+                        print('\033[91m 강의 다운로드에 실패했습니다.\033[0m')
         except TypeError:
             playTime = None
             runcount = 1
