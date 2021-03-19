@@ -31,6 +31,14 @@ def lessonList(cookies,AuthToken,classUrlPath):
                         headers=headers).content.decode('utf-8')
     jsonData = json.loads(data)
     return jsonData['data']['list']
+def finLessonList(cookies,AuthToken):
+    headers = {'User-Agent':userAgent,
+               'X-AUTH-TOKEN':AuthToken,
+               'Cookie':cookies}
+    data = requests.get(f'https://cln.ebsoc.co.kr/common_domain/lecture/api/v1/student/learning',
+                        headers=headers).content.decode('utf-8')
+    jsonData = json.loads(data)
+    return jsonData['data']['list']
 def lectureDetail(cookies,AuthToken,lessonSeq):
     headers = {'User-Agent':userAgent,
                'X-AUTH-TOKEN':AuthToken,

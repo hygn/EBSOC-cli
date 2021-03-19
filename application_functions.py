@@ -2,8 +2,9 @@ import APIWrapper
 import cookie
 import time
 import os
-cfgList = [['saveFile',str],['saveYTVideo',str],['saveEBSVideo',str],['playSpd',float],['log',str],['loginAttempt',int],['cfgLock',str]]
-defaultCfg = ['yes','yes','yes',0,'yes',10,'no']
+cfgList = [['saveFile',str],['saveYTVideo',str],['saveEBSVideo',str],['playSpd',float],['log',str],['loginAttempt',int],['cfgLock',str],\
+    ['debug',str]]
+defaultCfg = ['yes','yes','yes',0,'yes',10,'no','no']
 def readCfg():
     try:
         cfg = open(os.path.join(os.path.dirname(__file__),'EBSOC-cli.cfg'),'r').read()
@@ -78,6 +79,12 @@ def printLectureList(lectureList):
     for i in lectureList:
         print(f"{str(lectureList.index(i))}. {i['lessonName']} ({i['rtpgsRt']}%) del:{i['delYn']}")
     print("\033[1m----------------------------------\033[0m")
+def printFinLessonList(finLessonList):
+    print("\033[1m-----------미수강 목록------------\033[0m")
+    for i in finLessonList:
+        if i['rtpgsRt'] != 100:
+            print(f"{i['classNm']} [{i['lsnNm']}] ({i['rtpgsRt']}%)")
+    print("\033[1m----------------------------------\033[0m")
 def learn(lectureData,cookies,auth,memberSeq):
     config = readCfg()
     import wget
@@ -90,7 +97,8 @@ def learn(lectureData,cookies,auth,memberSeq):
     try:
         for i in lectureDetail['lectureContentsDto']['lectureContentsDocImageDtoList']['lectureContentsDocImageDtoList']:
             if config['saveFile'] == 'yes':
-                wget.download(i['fileleDto']['fileStoragePath'])
+                wget.download(i['fileleDto']['fileStoragePath'],out=i['fileleDto']['originalFileName'])
+                print('\n')
         playTime = None
         runcount = 1
     except:
@@ -114,6 +122,7 @@ def learn(lectureData,cookies,auth,memberSeq):
             else:
                 if config['saveEBSVideo'] == 'yes':
                     wget.download(lecturl,out=f"{lectureDetail['lectureName']}.mp4")
+                    print('\n')
         except TypeError:
             playTime = None
             runcount = 1
@@ -130,6 +139,7 @@ def learn(lectureData,cookies,auth,memberSeq):
         runcount = 1
     for i in range(runcount):
         if i == runcount - 1:
+            print('진도율 100% 입니다')
             result = APIWrapper.learnAPI(auth,'100',memberSeq,lrnseq,'l40jsfljasln32uf','asjfknal3bafjl23')
         else:
             APIWrapper.learnAPI(auth,str(int(100*(i+1)/runcount)),memberSeq,lrnseq,'l40jsfljasln32uf','asjfknal3bafjl23')
