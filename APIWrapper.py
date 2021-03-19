@@ -1,7 +1,7 @@
 import sys
 import json
 import requests
-from application_functions import readCfg
+from cfg import *
 platform = sys.platform
 debug = readCfg()['debug']
 userAgent = f'EBSErrorSolver(AKA.Etiquette Injector)/0.1 ({platform};) Python Requests'

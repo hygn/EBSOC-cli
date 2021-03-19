@@ -1,4 +1,5 @@
 from application_functions import *
+from cfg import *
 import APIWrapper
 import cookie
 import time
