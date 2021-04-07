@@ -3,6 +3,11 @@ from cfg import *
 import APIWrapper
 import cookie
 import time
+import os
+try:
+    os.mkdir('downloads')
+except FileExistsError:
+    pass
 debug = readCfg()['debug']
 if debug == 'yes': print(readCfg())
 if readCfg()['cfgLock'] != 'yes':
@@ -45,14 +50,16 @@ try:
         try:
             memberData = APIWrapper.userDetail(cookies,auth,memberSeq)
             classList = APIWrapper.classList(cookies,auth)
+            print('\033[92m Login successful\033[0m')
+            print(f"\033[95m Logged in as {memberData['memberNm']}\033[0m")
             break
-        except KeyError:
+        except:
             time.sleep(5)
             if i == readCfg()['loginAttempt']:
-                raise KeyError
+                raise
             else:
                 pass
-except KeyError:
+except:
     print('\033[91m Login failed \033[0m')
     print('\033[91m Please manually input cookie data \033[0m')
     auth = input('access = ')
@@ -67,22 +74,17 @@ except KeyError:
     try:
         classList = APIWrapper.classList(cookies,auth)
         memberData = APIWrapper.userDetail(cookies,auth,memberSeq)
-    except KeyError:
+    except:
         print('\033[91m Login failed \033[0m')
         print('\033[91m Aborting... \033[0m')
         input()
         exit()
-except:
-    print('\033[91m login failed\033[0m')
-    input()
-    quit()
-print('\033[92m Login successful\033[0m')
-print(f"\033[95m Logged in as {memberData['memberNm']}\033[0m")
 msgdepth = []
 while True:
     if msgdepth == []:
         finLessonList = APIWrapper.finLessonList(cookies,auth)
         classList = APIWrapper.classList(cookies,auth)
+        memberData = APIWrapper.userDetail(cookies,auth,memberSeq)
         if debug == 'yes': 
             print(classList)
             print(finLessonList)

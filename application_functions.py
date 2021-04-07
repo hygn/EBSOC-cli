@@ -1,4 +1,4 @@
-from cfg import *
+from cfg import readCfg
 import APIWrapper
 import cookie
 import time
@@ -26,6 +26,12 @@ def getIndex(List_):
                 return list(map(int,ind.split(',')))
             elif ind == 'all':
                 return list(range(len(List_)))
+            elif ind == 'alldoc':
+                tmplst = []
+                for i in list(range(len(List_))):
+                    if List_[i]['contentsTypeCode'] in ['006','012','018']:
+                        tmplst.append(i)
+                return tmplst
             elif ind == 'back':
                 return 'back'
             elif ind == 'front':
@@ -42,7 +48,7 @@ def printLessonList(lessonList):
 def printLectureList(lectureList):
     print("\033[1m----------------------------------\033[0m")
     for i in lectureList:
-        print(f"{str(lectureList.index(i))}. {i['lessonName']} ({i['rtpgsRt']}%) del:{i['delYn']}")
+        print(f"{str(lectureList.index(i))}. {i['lessonName']} ({i['rtpgsRt']}%) del:{i['delYn']} open:{i['openYn']}")
     print("\033[1m----------------------------------\033[0m")
 def printFinLessonList(finLessonList):
     print("\033[1m-----------미수강 목록------------\033[0m")
@@ -52,18 +58,23 @@ def printFinLessonList(finLessonList):
     print("\033[1m----------------------------------\033[0m")
 def learn(lectureData,cookies,auth,memberSeq):
     config = readCfg()
+    if config['debug'] == 'yes': print(lectureData)
     import wget
     lectureDetail = APIWrapper.lectureDetail(cookies,auth,lectureData['lessonSeq'])
+    schoolCode = lectureData['schoolCode']
     print(f"\033[92m 강의 정보 받기에 성공했습니다.\033[0m")
     try:
         print(lectureDetail['lectureContentsDto']['lectureContentsTextDto']['textContents'])
     except:
-        print(lectureDetail['lectureContentsDto']['contentsContents'])
+        try:
+            print(lectureDetail['lectureContentsDto']['contentsContents'])
+        except TypeError:
+            pass
     try:
         for i in lectureDetail['lectureContentsDto']['lectureContentsDocImageDtoList']['lectureContentsDocImageDtoList']:
             if config['saveFile'] == 'yes':
                 try:
-                    wget.download(i['fileleDto']['fileStoragePath'],out=i['fileleDto']['originalFileName'])
+                    wget.download(i['fileleDto']['fileStoragePath'],out=os.path.join(os.path.dirname(__file__),f"downloads/{i['fileleDto']['originalFileName']}"))
                     print('\n')
                 except:
                     print('\033[95m Fall back to newFileDownloadAPI\033[0m')
@@ -72,8 +83,8 @@ def learn(lectureData,cookies,auth,memberSeq):
                     if data == None:
                         print('\033[91m 강의 다운로드에 실패했습니다.\033[0m')
                     else:
-                        open(i['fileleDto']['originalFileName'],'a')
-                        open(i['fileleDto']['originalFileName'],'wb').write(data)
+                        open(os.path.join(os.path.dirname(__file__),f"downloads/{i['fileleDto']['originalFileName']}"),'a')
+                        open(os.path.join(os.path.dirname(__file__),f"downloads/{i['fileleDto']['originalFileName']}"),'wb').write(data)
         playTime = None
         runcount = 1
     except:
@@ -97,7 +108,7 @@ def learn(lectureData,cookies,auth,memberSeq):
             else:
                 if config['saveEBSVideo'] == 'yes':
                     try:
-                        wget.download(lecturl,out=f"{lectureDetail['lectureName']}.mp4")
+                        wget.download(lecturl,out=os.path.join(os.path.dirname(__file__),f"downloads/{lectureDetail['lectureName']}.mp4"))
                         print('\n')
                     except:
                         print('\033[91m 강의 다운로드에 실패했습니다.\033[0m')
@@ -109,8 +120,11 @@ def learn(lectureData,cookies,auth,memberSeq):
             createAPI = APIWrapper.createAPICheck(cookies,auth,lectureData['contentsSeq'],lectureData['contentsTypeCode'],lectureData['lectureSeq'],\
                 lectureData['lessonAttendanceSeq'],lectureData['lessonSeq'],lectureData['officeEduCode'],lectureData['schoolCode'],lectureData['lectureLearningSeq'])
             lrnseq = createAPI['data']
+            if config['debug'] == 'yes': print(f"lectCrt: {createAPI}")
         except:
             print('강의 정보 등록에 실패했습니다.')
+            if config['debug'] == 'yes': print(createAPI)
+            return
     else:
         lrnseq = lectureData['lectureLearningSeq']
     if lectureData['rtpgsRt'] == 100:
@@ -118,9 +132,19 @@ def learn(lectureData,cookies,auth,memberSeq):
     for i in range(runcount):
         if i == runcount - 1:
             print('진도율 100% 입니다')
-            result = APIWrapper.learnAPI(auth,'100',memberSeq,lrnseq,'l40jsfljasln32uf','asjfknal3bafjl23')
+            for p in range(10):
+                try:
+                    result = APIWrapper.learnAPI(auth,'100',memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23')
+                    break
+                except:
+                    pass
         else:
-            APIWrapper.learnAPI(auth,str(int(100*(i+1)/runcount)),memberSeq,lrnseq,'l40jsfljasln32uf','asjfknal3bafjl23')
+            for p in range(10):
+                try:
+                    APIWrapper.learnAPI(auth,str(int(100*(i+1)/runcount)),memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23')
+                    break
+                except:
+                    pass
             print(f"진도율이 저장되었습니다 ({i+1}/{runcount})")
             time.sleep(30)
     try: 

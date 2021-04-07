@@ -7,9 +7,9 @@ def query(hoc):
         data = str(browser_cookie3.chrome(domain_name=hoc+".ebsoc.co.kr")).replace('<CookieJar[','').replace('}>','').split(">, <")
     cookies = ''
     for i in data:
-        if hoc+'.ebsoc.co.kr' in i:
+        if hoc+'.ebsoc.co.kr' in i and 'www.ebsoc.co.kr' not in i:
             cookies = cookies + i.replace('Cookie ','').split(' for')[0] + '; '
-    return cookies
+    return cookies.replace('<','')
 def getAuth(hoc):
     import platform
     import browser_cookie3
