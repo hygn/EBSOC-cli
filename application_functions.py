@@ -43,12 +43,14 @@ def getIndex(List_):
 def printLessonList(lessonList):
     print("\033[1m----------------------------------\033[0m")
     for i in lessonList:
-        print(f"{str(lessonList.index(i))}. {i['lessonName']} ({i['memberName']} 선생님) [{i['lessonIntroduce']}]")
+        lsnInt = i['lessonIntroduce'].replace('\n',' ')
+        print(f"{str(lessonList.index(i))}. {i['lessonName']} ({i['memberName']} 선생님) [{lsnInt}]")
     print("\033[1m----------------------------------\033[0m")
 def printLectureList(lectureList):
     print("\033[1m----------------------------------\033[0m")
     for i in lectureList:
         print(f"{str(lectureList.index(i))}. {i['lessonName']} ({i['rtpgsRt']}%) del:{i['delYn']} open:{i['openYn']}")
+        print(f"    [{i['learnBeginDate']} ~ {i['learnEndDate']}] 최초 입력일시: {i['firstRegistDate']} / 최종 수정일시: {i['lastUpdateDate']}\n")
     print("\033[1m----------------------------------\033[0m")
 def printFinLessonList(finLessonList):
     print("\033[1m-----------미수강 목록------------\033[0m")
