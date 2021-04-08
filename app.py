@@ -48,6 +48,12 @@ try:
         attemptCount = defaultCfg[5]
     for i in range(attemptCount):
         try:
+            cookies = cookie.query('')
+            if debug == 'yes': print(cookies)
+            auth = cookie.getAuth('')
+            if debug == 'yes': print(auth)
+            memberSeq = cookie.getMembSeq('')
+            if debug == 'yes': print(memberSeq)
             memberData = APIWrapper.userDetail(cookies,auth,memberSeq)
             classList = APIWrapper.classList(cookies,auth)
             print('\033[92m Login successful\033[0m')
@@ -94,9 +100,12 @@ while True:
         if classIndex == 'f':
             msgdepth = []
         elif classIndex != 'b':
-            lessonList = APIWrapper.lessonList(cookies,auth,classList[classIndex]['classUrlPath'])
-            if debug == 'yes': print(lessonList)
-            msgdepth.append(['lessonList',{}])
+            try:
+                lessonList = APIWrapper.lessonList(cookies,auth,classList[classIndex]['classUrlPath'])
+                if debug == 'yes': print(lessonList)
+                msgdepth.append(['lessonList',{}])
+            except IndexError:
+                pass
         if debug != 'yes': clear()
     elif len(msgdepth) == 1:
         printLessonList(lessonList)
@@ -106,9 +115,12 @@ while True:
         elif lessonIndex == 'b':
             msgdepth.pop(0)
         else:
-            lectureList = APIWrapper.lectureList(cookies,auth,classList[classIndex]['classUrlPath'],lessonList[lessonIndex]['lessonSeq'])
-            if debug == 'yes': print(lectureList)
-            msgdepth.append(['lectureList',{}])
+            try:
+                lectureList = APIWrapper.lectureList(cookies,auth,classList[classIndex]['classUrlPath'],lessonList[lessonIndex]['lessonSeq'])
+                if debug == 'yes': print(lectureList)
+                msgdepth.append(['lectureList',{}])
+            except IndexError:
+                pass
         if debug != 'yes': clear()
     elif len(msgdepth) == 2:
         printLectureList(lectureList)
@@ -124,6 +136,9 @@ while True:
         for i in lectureIndex:
             learn(lectureList[i],cookies,auth,memberSeq)
         msgdepth.pop(2)
-        lectureList = APIWrapper.lectureList(cookies,auth,classList[classIndex]['classUrlPath'],lessonList[lessonIndex]['lessonSeq'])
-        input()
+        try:
+            lectureList = APIWrapper.lectureList(cookies,auth,classList[classIndex]['classUrlPath'],lessonList[lessonIndex]['lessonSeq'])
+            input()
+        except IndexError:
+            pass
         if debug != 'yes': clear()
