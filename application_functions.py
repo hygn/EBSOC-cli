@@ -17,7 +17,11 @@ def printClassList(classList):
     print("\033[1m----------------------------------\033[0m")
 def getIndex(List_):
     while True:
-        ind = input('input index: ').strip()
+        try:
+            ind = input('input index: ').strip()
+        except KeyboardInterrupt:
+            print('')
+            quit()
         try:
             if int(ind) <= len(List_):
                 return [int(ind)]
@@ -59,6 +63,8 @@ def printFinLessonList(finLessonList):
             print(f"{i['classNm']} [{i['lsnNm']}] ({i['rtpgsRt']}%)")
     print("\033[1m----------------------------------\033[0m")
 def learn(lectureData,cookies,auth,memberSeq):
+    import glob
+    import shutil
     config = readCfg()
     if config['debug'] == 'yes': print(lectureData)
     import wget
@@ -79,6 +85,7 @@ def learn(lectureData,cookies,auth,memberSeq):
                     wget.download(i['fileleDto']['fileStoragePath'],out=os.path.join(os.path.dirname(__file__),f"downloads/{i['fileleDto']['originalFileName']}"))
                     print('\n')
                 except:
+                    #이렇게 예외처리 하라고 메일도 보냈는데 처리 대충대충하는건 EBS종특이냐?
                     print('\033[95m Fall back to newFileDownloadAPI\033[0m')
                     print('Downloading...')
                     data = APIWrapper.newFileDownload(cookies,auth,i['fileleDto']['fileDetailId'])
@@ -101,12 +108,24 @@ def learn(lectureData,cookies,auth,memberSeq):
                 runcount = 1
             if 'youtu' in lecturl and config['saveYTVideo'] == 'yes':
                 import youtube_dl
-                ydl_opts = {}
+                ydl_opts = {
+                    'format': 'best/best',
+                }
                 with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                     try:
                         ydl.download([lecturl])
                     except:
                         print('youtube-dl 오류가 발생했습니다')
+                try: 
+                    for f in glob.glob(os.getcwd()+r'/*.mp4'):
+                        shutil.move(f,os.getcwd()+'/downloads')
+                except:
+                    print('shutil 오류가 발생했습니다 [대체로 심각한 문제가 아닙니다.]')
+                    try:
+                        for f in glob.glob(os.getcwd()+r'/*.mp4'):
+                            os.remove(f)
+                    except:
+                        print('파일 핸들링 오류가 발생했습니다')
             else:
                 if config['saveEBSVideo'] == 'yes':
                     try:
@@ -135,6 +154,7 @@ def learn(lectureData,cookies,auth,memberSeq):
         if i == runcount - 1:
             print('진도율 100% 입니다')
             for p in range(10):
+                p
                 try:
                     result = APIWrapper.learnAPI(auth,'100',memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23')
                     break

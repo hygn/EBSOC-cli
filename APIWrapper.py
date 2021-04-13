@@ -68,9 +68,9 @@ def newFileDownload(cookies,AuthToken,fileId):
                'X-AUTH-TOKEN':AuthToken,
                'Cookie':cookies,
                'Content-Type': 'application/json;charset=UTF-8'}
-    payload = {'fileId':fileId}
-    req = requests.post(f'https://cln.ebsoc.co.kr/common/api/v1/s3/file/down',
-                   headers=headers,json=payload)
+    #이걸 또 바꾸네
+    req = requests.get(f'https://cln.ebsoc.co.kr/common/api/v1/s3new/file/getDownLoadURL?fileId={fileId}',
+                   headers=headers)
     data = req.content
     if debug == 'yes': print(len(data))
     stat = req.status_code
