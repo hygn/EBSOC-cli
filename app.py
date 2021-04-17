@@ -4,6 +4,13 @@ import APIWrapper
 import cookie
 import time
 import os
+#https://www.youtube.com/watch?v=f4ZRK8YLmPc
+#https://www.youtube.com/watch?v=aGuHixFujHE
+#https://youtu.be/TiCEzvE0trc?t=922
+#https://www.youtube.com/watch?v=ljmGSQvYeGo
+#https://www.youtube.com/watch?v=TyHITBLVrEg
+#https://www.youtube.com/watch?v=1QMfcLcH56o
+#https://www.youtube.com/watch?v=6iseNlvH2_s
 try:
     os.mkdir('downloads')
 except FileExistsError:

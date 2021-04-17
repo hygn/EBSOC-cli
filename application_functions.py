@@ -82,7 +82,7 @@ def learn(lectureData,cookies,auth,memberSeq):
         for i in lectureDetail['lectureContentsDto']['lectureContentsDocImageDtoList']['lectureContentsDocImageDtoList']:
             if config['saveFile'] == 'yes':
                 try:
-                    wget.download(i['fileleDto']['fileStoragePath'],out=os.path.join(os.path.dirname(__file__),f"downloads/{i['fileleDto']['originalFileName']}"))
+                    wget.download(i['fileleDto']['fileStoragePath'],out=os.path.join(os.path.dirname(__file__),f"downloads/{i['fileleDto']['originalFileName'].replace('/','').replace('?','')}"))
                     print('\n')
                 except:
                     #이렇게 예외처리 하라고 메일도 보냈는데 처리 대충대충하는건 EBS종특이냐?
@@ -92,8 +92,8 @@ def learn(lectureData,cookies,auth,memberSeq):
                     if data == None:
                         print('\033[91m 강의 다운로드에 실패했습니다.\033[0m')
                     else:
-                        open(os.path.join(os.path.dirname(__file__),f"downloads/{i['fileleDto']['originalFileName']}"),'a')
-                        open(os.path.join(os.path.dirname(__file__),f"downloads/{i['fileleDto']['originalFileName']}"),'wb').write(data)
+                        open(os.path.join(os.path.dirname(__file__),f"downloads/{i['fileleDto']['originalFileName'].replace('/','').replace('?','')}"),'a')
+                        open(os.path.join(os.path.dirname(__file__),f"downloads/{i['fileleDto']['originalFileName'].replace('/','').replace('?','')}"),'wb').write(data)
         playTime = None
         runcount = 1
     except:
@@ -129,7 +129,7 @@ def learn(lectureData,cookies,auth,memberSeq):
             else:
                 if config['saveEBSVideo'] == 'yes':
                     try:
-                        wget.download(lecturl,out=os.path.join(os.path.dirname(__file__),f"downloads/{lectureDetail['lectureName']}.mp4"))
+                        wget.download(lecturl,out=os.path.join(os.path.dirname(__file__),f"downloads/{lectureDetail['lectureName'].replace('/','').replace('?','')}.mp4"))
                         print('\n')
                     except:
                         print('\033[91m 강의 다운로드에 실패했습니다.\033[0m')
