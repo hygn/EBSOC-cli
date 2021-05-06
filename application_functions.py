@@ -101,7 +101,7 @@ def learn(lectureData,cookies,auth,memberSeq,percent=0):
             lecturl = lectureDetail['lectureContentsDto']['lectureContentsMvpDto']['mvpFileUrlPath']
             playTime = lectureDetail['lectureContentsDto']['lectureContentsMvpDto']['playTime']
             try:
-                runcount = round(int((playTime/config['playSpd'])-int(playTime*percent/100))/30)
+                runcount = round(int((playTime*(100 - percent)/100)/config['playSpd'])/30)
             except:
                 runcount = 1
             if runcount == 0:
@@ -167,6 +167,8 @@ def learn(lectureData,cookies,auth,memberSeq,percent=0):
                         progress = 99
                     else:
                         progress = int(100*(i+1)/runcount)+percent
+                    print(int(100*(i+1)/runcount))
+                    print(progress)
                     APIWrapper.learnAPI(auth,str(progress),memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23')
                     break
                 except APIWrapper.json.JSONDecodeError:
