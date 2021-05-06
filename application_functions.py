@@ -62,7 +62,7 @@ def printFinLessonList(finLessonList):
         if i['rtpgsRt'] != 100:
             print(f"{i['classNm']} [{i['lsnNm']}] ({i['rtpgsRt']}%)")
     print("\033[1m----------------------------------\033[0m")
-def learn(lectureData,cookies,auth,memberSeq):
+def learn(lectureData,cookies,auth,memberSeq,percent=0):
     import glob
     import shutil
     config = readCfg()
@@ -101,7 +101,7 @@ def learn(lectureData,cookies,auth,memberSeq):
             lecturl = lectureDetail['lectureContentsDto']['lectureContentsMvpDto']['mvpFileUrlPath']
             playTime = lectureDetail['lectureContentsDto']['lectureContentsMvpDto']['playTime']
             try:
-                runcount = round(int(playTime/config['playSpd'])/30)
+                runcount = round(int((playTime/config['playSpd'])-int(playTime*percent/100))/30)
             except:
                 runcount = 1
             if runcount == 0:
@@ -163,11 +163,16 @@ def learn(lectureData,cookies,auth,memberSeq):
         else:
             for p in range(10):
                 try:
-                    APIWrapper.learnAPI(auth,str(int(100*(i+1)/runcount)),memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23')
+                    if int(100*(i+1)/runcount)+percent >= 100:
+                        progress = 99
+                    else:
+                        progress = int(100*(i+1)/runcount)+percent
+                    APIWrapper.learnAPI(auth,str(progress),memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23')
                     break
-                except:
+                except APIWrapper.json.JSONDecodeError:
+                    progress = 0
                     pass
-            print(f"진도율이 저장되었습니다 ({i+1}/{runcount})")
+            print(f"진도율이 저장되었습니다 ({i+1}/{runcount}) [{progress}%]")
             time.sleep(30)
     try: 
         if result['code'] == 'OK': 

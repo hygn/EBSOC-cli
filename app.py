@@ -142,7 +142,10 @@ while True:
         if debug != 'yes': clear()
     elif len(msgdepth) == 3:
         for i in lectureIndex:
-            learn(lectureList[i],cookies,auth,memberSeq)
+            try:
+                learn(lectureList[i],cookies,auth,memberSeq,percent=int(lectureList[i]['rtpgsRt']))
+            except ValueError:
+                learn(lectureList[i],cookies,auth,memberSeq)
         msgdepth.pop(2)
         try:
             lectureList = APIWrapper.lectureList(cookies,auth,classList[classIndex]['classUrlPath'],lessonList[lessonIndex]['lessonSeq'])
