@@ -27,8 +27,14 @@ def printCfg():
     print("\033[1m----------------------------------\033[0m")
     cfgs = readCfg()
     for i in cfgList:
-        print(f"[ {i[0]} | {cfgs[i[0]]} | default:{defaultCfg[cfgList.index(i)]} | type:{str(i[1])} ]")
+        print(f"[ {padCfg(i[0],15)} | {padCfg(cfgs[i[0]],5)} | default:{padCfg(defaultCfg[cfgList.index(i)],10)} | type:{padCfg(str(i[1]),16)} ]")
     print("\033[1m----------------------------------\033[0m")
+def padCfg(d,l):
+    cnt = l - len(str(d))
+    d = str(d)
+    for i in range(cnt):
+        d = d + " "
+    return d
 def editCfg(arg,dat):
     config = readCfg()
     cfg = open(os.path.join(os.path.dirname(__file__),'EBSOC-cli.cfg'),'r').read()

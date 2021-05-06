@@ -63,6 +63,7 @@ try:
             if debug == 'yes': print(memberSeq)
             memberData = APIWrapper.userDetail(cookies,auth,memberSeq)
             classList = APIWrapper.classList(cookies,auth)
+            clear()
             print('\033[92m Login successful\033[0m')
             print(f"\033[95m Logged in as {memberData['memberNm']}\033[0m")
             break

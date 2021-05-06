@@ -1,3 +1,10 @@
+def clear():
+    import sys
+    import os
+    if 'win' in sys.platform.lower():
+        os.system('cls')
+    else:
+        os.system('clear')
 def query(hoc):
     import platform
     import browser_cookie3
@@ -6,12 +13,14 @@ def query(hoc):
             browser_cookie3.firefox(domain_name=hoc+".ebsoc.co.kr")
         except:
             import bc3_alt as browser_cookie3
+            clear()
         data = str(browser_cookie3.firefox(domain_name=hoc+".ebsoc.co.kr")).replace('<CookieJar[','').replace('}>','').split(">, <")
     else:
         try:
             browser_cookie3.chrome(domain_name=hoc+".ebsoc.co.kr")
         except:
             import bc3_alt as browser_cookie3
+            clear()
         data = str(browser_cookie3.chrome(domain_name=hoc+".ebsoc.co.kr")).replace('<CookieJar[','').replace('}>','').split(">, <")
     cookies = ''
     for i in data:
@@ -26,12 +35,14 @@ def getAuth(hoc):
             browser_cookie3.firefox(domain_name=hoc+".ebsoc.co.kr")
         except:
             import bc3_alt as browser_cookie3
+            clear()
         data = str(browser_cookie3.firefox(domain_name=hoc+".ebsoc.co.kr")).replace('<CookieJar[','').replace('}>','').split(">, <")
     else:
         try:
             browser_cookie3.chrome(domain_name=hoc+".ebsoc.co.kr")
         except:
             import bc3_alt as browser_cookie3
+            clear()
         data = str(browser_cookie3.chrome(domain_name=hoc+".ebsoc.co.kr")).replace('<CookieJar[','').replace('}>','').split(">, <")
     for i in data:
         if hoc+'.ebsoc.co.kr' in i:
@@ -47,12 +58,14 @@ def getMembSeq(hoc):
             browser_cookie3.firefox(domain_name=hoc+".ebsoc.co.kr")
         except:
             import bc3_alt as browser_cookie3
+            clear()
         data = str(browser_cookie3.firefox(domain_name=hoc+".ebsoc.co.kr")).replace('<CookieJar[','').replace('}>','').split(">, <")
     else:
         try:
             browser_cookie3.chrome(domain_name=hoc+".ebsoc.co.kr")
         except:
             import bc3_alt as browser_cookie3
+            clear()
         data = str(browser_cookie3.chrome(domain_name=hoc+".ebsoc.co.kr")).replace('<CookieJar[','').replace('}>','').split(">, <")
     for i in data:
         if hoc+'.ebsoc.co.kr' in i:
