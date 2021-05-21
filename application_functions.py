@@ -106,6 +106,10 @@ def learn(lectureData,cookies,auth,memberSeq,percent=0):
                 runcount = 1
             if runcount == 0:
                 runcount = 1
+            try:
+                os.mkdir(os.getcwd()+'/downloads')
+            except FileExistsError:
+                pass
             if 'youtu' in lecturl and config['saveYTVideo'] == 'yes':
                 import youtube_dl
                 ydl_opts = {
@@ -132,7 +136,7 @@ def learn(lectureData,cookies,auth,memberSeq,percent=0):
                         wget.download(lecturl,out=os.path.join(os.path.dirname(__file__),f"downloads/{lectureDetail['lectureName'].replace('/','').replace('?','')}.mp4"))
                         print('\n')
                     except:
-                        print('\033[91m 강의 다운로드에 실패했습니다.\033[0m')
+                        print('\n\033[91m 강의 다운로드에 실패했습니다.\033[0m')
         except TypeError:
             playTime = None
             runcount = 1
@@ -161,21 +165,24 @@ def learn(lectureData,cookies,auth,memberSeq,percent=0):
                 except:
                     pass
         else:
-            for p in range(10):
-                try:
-                    if int(100*(i+1)/runcount)+percent >= 100:
-                        progress = 99
-                    else:
-                        progress = int(100*(i+1)/runcount)+percent
-                    print(int(100*(i+1)/runcount))
-                    print(progress)
-                    APIWrapper.learnAPI(auth,str(progress),memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23')
-                    break
-                except APIWrapper.json.JSONDecodeError:
-                    progress = 0
-                    pass
-            print(f"진도율이 저장되었습니다 ({i+1}/{runcount}) [{progress}%]")
-            time.sleep(30)
+            try:
+                for p in range(10):
+                    try:
+                        if int(100*(i+1)/runcount)+percent >= 100:
+                            progress = 99
+                        else:
+                            progress = int(100*(i+1)/runcount)+percent
+                        APIWrapper.learnAPI(auth,str(progress),memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23')
+                        break
+                    except APIWrapper.json.JSONDecodeError:
+                        progress = 0
+                        pass
+                print(f"진도율이 저장되었습니다 ({i+1}/{runcount}) [{progress}%]")
+                time.sleep(30)
+            except KeyboardInterrupt:
+                APIWrapper.learnAPI(auth,str(progress),memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23')
+                print('\n강의 수강이 중단되었습니다.')
+                return
     try: 
         if result['code'] == 'OK': 
             print('\n강의 수강이 완료되었습니다.')

@@ -89,7 +89,6 @@ def createAPICheck(cookies,AuthToken,contentsSeq,contentsTypeCode,lectureSeq,les
                'lessonSeq':lessonSeq,
                'officeEduCode': officeEduCode,
                'schoolCode': schoolCode}
-    print(payload)
     if lectureLearningSeq == None:
         data = requests.post(f'https://cln.ebsoc.co.kr/lecture/api/v1/lesson/lecture/attend/create',
                              headers=headers,json=payload)
