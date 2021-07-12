@@ -1,8 +1,10 @@
+from typing import Collection
 from cfg import readCfg
 import APIWrapper
 import cookie
 import time
 import os
+host = cookie.getHost('')
 def clear():
     import sys
     import os
@@ -15,7 +17,7 @@ def printClassList(classList):
     for i in classList:
         print(f"{str(classList.index(i))}. {i['className']} ({i['establishmentUserName']} 선생님)")
     print("\033[1m----------------------------------\033[0m")
-def getIndex(List_):
+def getIndex(List_,msgdepth):
     while True:
         try:
             ind = input('input index: ').strip()
@@ -28,18 +30,22 @@ def getIndex(List_):
         except ValueError:
             if ',' in ind:
                 return list(map(int,ind.split(',')))
-            elif ind == 'all':
+            elif ind == 'all' and msgdepth == 2:
                 return list(range(len(List_)))
-            elif ind == 'alldoc':
+            elif ind == 'alldoc' and msgdepth == 2:
                 tmplst = []
                 for i in list(range(len(List_))):
                     if List_[i]['contentsTypeCode'] in ['006','012','018']:
                         tmplst.append(i)
                 return tmplst
             elif ind == 'back':
-                return 'back'
+                return ['back']
             elif ind == 'front':
-                return 'front'
+                return ['front']
+            elif ind == 'all':
+                return ['all']
+            elif ind == 'alldoc':
+                return ['alldoc']
             elif ind == 'quit':
                 quit()
             else:
@@ -68,7 +74,7 @@ def learn(lectureData,cookies,auth,memberSeq,percent=0):
     config = readCfg()
     if config['debug'] == 'yes': print(lectureData)
     import wget
-    lectureDetail = APIWrapper.lectureDetail(cookies,auth,lectureData['lessonSeq'])
+    lectureDetail = APIWrapper.lectureDetail(cookies,auth,lectureData['lessonSeq'],host)
     schoolCode = lectureData['schoolCode']
     print(f"\033[92m 강의 정보 받기에 성공했습니다.\033[0m")
     try:
@@ -88,7 +94,7 @@ def learn(lectureData,cookies,auth,memberSeq,percent=0):
                     #이렇게 예외처리 하라고 메일도 보냈는데 처리 대충대충하는건 EBS종특이냐?
                     print('\033[95m Fall back to newFileDownloadAPI\033[0m')
                     print('Downloading...')
-                    data = APIWrapper.newFileDownload(cookies,auth,i['fileleDto']['fileDetailId'])
+                    data = APIWrapper.newFileDownload(cookies,auth,i['fileleDto']['fileDetailId'],host)
                     if data == None:
                         print('\033[91m 강의 다운로드에 실패했습니다.\033[0m')
                     else:
@@ -143,7 +149,7 @@ def learn(lectureData,cookies,auth,memberSeq,percent=0):
     if lectureData['lectureLearningSeq'] == None:
         try:
             createAPI = APIWrapper.createAPICheck(cookies,auth,lectureData['contentsSeq'],lectureData['contentsTypeCode'],lectureData['lectureSeq'],\
-                lectureData['lessonAttendanceSeq'],lectureData['lessonSeq'],lectureData['officeEduCode'],lectureData['schoolCode'],lectureData['lectureLearningSeq'])
+                lectureData['lessonAttendanceSeq'],lectureData['lessonSeq'],lectureData['officeEduCode'],lectureData['schoolCode'],lectureData['lectureLearningSeq'],host)
             lrnseq = createAPI['data']
             if config['debug'] == 'yes': print(f"lectCrt: {createAPI}")
         except:
@@ -160,7 +166,7 @@ def learn(lectureData,cookies,auth,memberSeq,percent=0):
             for p in range(10):
                 p
                 try:
-                    result = APIWrapper.learnAPI(auth,'100',memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23')
+                    result = APIWrapper.learnAPI(auth,'100',memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23',host)
                     break
                 except:
                     pass
@@ -172,7 +178,7 @@ def learn(lectureData,cookies,auth,memberSeq,percent=0):
                             progress = 99
                         else:
                             progress = int(100*(i+1)/runcount)+percent
-                        APIWrapper.learnAPI(auth,str(progress),memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23')
+                        APIWrapper.learnAPI(auth,str(progress),memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23',host)
                         break
                     except APIWrapper.json.JSONDecodeError:
                         progress = 0
@@ -180,7 +186,7 @@ def learn(lectureData,cookies,auth,memberSeq,percent=0):
                 print(f"진도율이 저장되었습니다 ({i+1}/{runcount}) [{progress}%]")
                 time.sleep(30)
             except KeyboardInterrupt:
-                APIWrapper.learnAPI(auth,str(progress),memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23')
+                APIWrapper.learnAPI(auth,str(progress),memberSeq,lrnseq,schoolCode,'l40jsfljasln32uf','asjfknal3bafjl23',host)
                 print('\n강의 수강이 중단되었습니다.')
                 return
     try: 

@@ -4,6 +4,7 @@ import APIWrapper
 import cookie
 import time
 import os
+host = cookie.getHost('')
 #https://www.youtube.com/watch?v=f4ZRK8YLmPc
 #https://www.youtube.com/watch?v=aGuHixFujHE
 #https://youtu.be/TiCEzvE0trc?t=922
@@ -61,8 +62,8 @@ try:
             if debug == 'yes': print(auth)
             memberSeq = cookie.getMembSeq('')
             if debug == 'yes': print(memberSeq)
-            memberData = APIWrapper.userDetail(cookies,auth,memberSeq)
-            classList = APIWrapper.classList(cookies,auth)
+            memberData = APIWrapper.userDetail(cookies,auth,memberSeq,host)
+            classList = APIWrapper.classList(cookies,auth,host)
             clear()
             print('\033[92m Login successful\033[0m')
             print(f"\033[95m Logged in as {memberData['memberNm']}\033[0m")
@@ -86,8 +87,8 @@ except:
     cookies = f'access={auth} host={host}, memberSchoolCode={memberSchoolCode}, memberSeq={memberSeq}, '\
         f'memberTargetCode={memberTargetCode}, schoolInfoYn=Y, WHATAP={WHATAP}, '
     try:
-        classList = APIWrapper.classList(cookies,auth)
-        memberData = APIWrapper.userDetail(cookies,auth,memberSeq)
+        classList = APIWrapper.classList(cookies,auth,host)
+        memberData = APIWrapper.userDetail(cookies,auth,memberSeq,host)
     except:
         print('\033[91m Login failed \033[0m')
         print('\033[91m Aborting... \033[0m')
@@ -96,35 +97,55 @@ except:
 msgdepth = []
 while True:
     if msgdepth == []:
-        finLessonList = APIWrapper.finLessonList(cookies,auth)
-        classList = APIWrapper.classList(cookies,auth)
-        memberData = APIWrapper.userDetail(cookies,auth,memberSeq)
+        finLessonList = APIWrapper.finLessonList(cookies,auth,host)
+        classList = APIWrapper.classList(cookies,auth,host)
+        memberData = APIWrapper.userDetail(cookies,auth,memberSeq,host)
         if debug == 'yes': 
             print(classList)
             print(finLessonList)
         printClassList(classList)
         printFinLessonList(finLessonList)
-        classIndex = getIndex(classList)[0]
-        if classIndex == 'f':
+        classIndex = getIndex(classList,len(msgdepth))[0]
+        if classIndex == 'front':
             msgdepth = []
-        elif classIndex != 'b':
+        elif not isinstance(classIndex,str):
             try:
-                lessonList = APIWrapper.lessonList(cookies,auth,classList[classIndex]['classUrlPath'])
+                lessonList = APIWrapper.lessonList(cookies,auth,classList[classIndex]['classUrlPath'],host)
                 if debug == 'yes': print(lessonList)
                 msgdepth.append(['lessonList',{}])
             except IndexError:
                 pass
+        elif classIndex[0:3] == 'all':
+            finLessonNameList = []
+            for i in finLessonList:
+                finLessonNameList.append(i['lsnNm'])
+            print(finLessonNameList)
+            input()
+            for i in classList:
+                classurl = i['classUrlPath']
+                lessonList = APIWrapper.lessonList(cookies,auth,classurl,host)
+                printLessonList(lessonList)
+                for j in lessonList:
+                    lectureList = APIWrapper.lectureList(cookies,auth,classurl,j['lessonSeq'],host)
+                    printLectureList(lectureList)
+                    for k in lectureList:
+                        if k['contentsTypeCode'] in ['006','012','018'] or classIndex != 'alldoc':
+                            if k['rtpgsRt'] != 100 and k['lessonName'] in finLessonNameList:
+                                try:
+                                    learn(k,cookies,auth,memberSeq,percent=int(k['rtpgsRt']))
+                                except ValueError:
+                                    learn(k,cookies,auth,memberSeq)
         if debug != 'yes': clear()
     elif len(msgdepth) == 1:
         printLessonList(lessonList)
-        lessonIndex = getIndex(lessonList)[0]
-        if lessonIndex == 'f':
+        lessonIndex = getIndex(lessonList,len(msgdepth))[0]
+        if lessonIndex == 'front':
             msgdepth = []
-        elif lessonIndex == 'b':
+        elif lessonIndex == 'back':
             msgdepth.pop(0)
         else:
             try:
-                lectureList = APIWrapper.lectureList(cookies,auth,classList[classIndex]['classUrlPath'],lessonList[lessonIndex]['lessonSeq'])
+                lectureList = APIWrapper.lectureList(cookies,auth,classList[classIndex]['classUrlPath'],lessonList[lessonIndex]['lessonSeq'],host)
                 if debug == 'yes': print(lectureList)
                 msgdepth.append(['lectureList',{}])
             except IndexError:
@@ -132,10 +153,10 @@ while True:
         if debug != 'yes': clear()
     elif len(msgdepth) == 2:
         printLectureList(lectureList)
-        lectureIndex = getIndex(lectureList)
-        if lectureIndex == 'front':
+        lectureIndex = getIndex(lectureList,len(msgdepth))
+        if lectureIndex == ['front']:
             msgdepth = []
-        elif lectureIndex == 'back':
+        elif lectureIndex == ['back']:
             msgdepth.pop(1)
         else:
             msgdepth.append(['learn',{}])
@@ -148,7 +169,7 @@ while True:
                 learn(lectureList[i],cookies,auth,memberSeq)
         msgdepth.pop(2)
         try:
-            lectureList = APIWrapper.lectureList(cookies,auth,classList[classIndex]['classUrlPath'],lessonList[lessonIndex]['lessonSeq'])
+            lectureList = APIWrapper.lectureList(cookies,auth,classList[classIndex]['classUrlPath'],lessonList[lessonIndex]['lessonSeq'],host)
             input()
         except IndexError:
             pass
