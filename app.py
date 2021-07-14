@@ -4,6 +4,7 @@ import APIWrapper
 import cookie
 import time
 import os
+clear()
 host = cookie.getHost('')
 #https://www.youtube.com/watch?v=f4ZRK8YLmPc
 #https://www.youtube.com/watch?v=aGuHixFujHE
@@ -36,7 +37,8 @@ if decfg == 'y':
         input()
         clear()
 debug = readCfg()['debug']
-print('\033[95m Logging in... \033[0m')
+attempt = readCfg()['attempt']
+print('\033[95mLogging in... \033[0m')
 try:
     cookies = cookie.query('')
     if debug == 'yes': print(cookies)
@@ -45,13 +47,13 @@ try:
     memberSeq = cookie.getMembSeq('')
     if debug == 'yes': print(memberSeq)
 except:
-    print('\033[91m cookie not detected \033[0m')
+    print('\033[91mcookie not detected \033[0m')
     cookies = None
 try:
     if cookies == None:
         raise KeyError
     try:
-        attemptCount = readCfg()['loginAttempt']
+        attemptCount = readCfg()['attempt']
     except:
         attemptCount = defaultCfg[5]
     for i in range(attemptCount):
@@ -62,11 +64,10 @@ try:
             if debug == 'yes': print(auth)
             memberSeq = cookie.getMembSeq('')
             if debug == 'yes': print(memberSeq)
+            print(f"\033[95mFetching user data\033[0m")
             memberData = APIWrapper.userDetail(cookies,auth,memberSeq,host)
-            classList = APIWrapper.classList(cookies,auth,host)
-            clear()
-            print('\033[92m Login successful\033[0m')
-            print(f"\033[95m Logged in as {memberData['memberNm']}\033[0m")
+            print('\033[92mLogin successful\033[0m')
+            print(f"\033[95mLogged in as {memberData['memberNm']}\033[0m")
             break
         except:
             time.sleep(5)
@@ -75,8 +76,8 @@ try:
             else:
                 pass
 except:
-    print('\033[91m Login failed \033[0m')
-    print('\033[91m Please manually input cookie data \033[0m')
+    print('\033[91mLogin failed \033[0m')
+    print('\033[91mPlease manually input cookie data \033[0m')
     auth = input('access = ')
     host = input('host = ')
     memberSchoolCode = input('memberSchoolCode = ')
@@ -88,18 +89,23 @@ except:
         f'memberTargetCode={memberTargetCode}, schoolInfoYn=Y, WHATAP={WHATAP}, '
     try:
         classList = APIWrapper.classList(cookies,auth,host)
+        print(f"\033[95mFetching user data\033[0m")
         memberData = APIWrapper.userDetail(cookies,auth,memberSeq,host)
     except:
-        print('\033[91m Login failed \033[0m')
-        print('\033[91m Aborting... \033[0m')
+        print('\033[91mLogin failed \033[0m')
+        print('\033[91mAborting... \033[0m')
         input()
         exit()
 msgdepth = []
 while True:
     if msgdepth == []:
-        finLessonList = APIWrapper.finLessonList(cookies,auth,host)
+        print(f"\033[95mFetching class list\033[0m")
         classList = APIWrapper.classList(cookies,auth,host)
-        memberData = APIWrapper.userDetail(cookies,auth,memberSeq,host)
+        time.sleep(1)
+        print('\033[92mFetch successful\033[0m')
+        print(f"\033[95mFetching lecture progress data\033[0m")
+        finLessonList = APIWrapper.finLessonList(cookies,auth,host)
+        print('\033[92mFetch successful\033[0m')
         if debug == 'yes': 
             print(classList)
             print(finLessonList)
@@ -119,8 +125,6 @@ while True:
             finLessonNameList = []
             for i in finLessonList:
                 finLessonNameList.append(i['lsnNm'])
-            print(finLessonNameList)
-            input()
             for i in classList:
                 classurl = i['classUrlPath']
                 lessonList = APIWrapper.lessonList(cookies,auth,classurl,host)

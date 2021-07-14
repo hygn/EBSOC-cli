@@ -1,4 +1,4 @@
-from typing import Collection
+import requests
 from cfg import readCfg
 import APIWrapper
 import cookie
@@ -12,6 +12,17 @@ def clear():
         os.system('cls')
     else:
         os.system('clear')
+def downloadFile(url,local_filename):
+    r = requests.get(url, stream=True)
+    fsize = int(r.headers['content-length'])
+    iterCount = 0
+    r.raise_for_status()
+    with open(local_filename, 'wb') as f:
+        for chunk in r.iter_content(chunk_size=8192): 
+            print(f"{(8192*iterCount/fsize)*100}%")
+            iterCount = iterCount + 1
+            f.write(chunk)
+    return None
 def printClassList(classList):
     print("\033[1m----------------------------------\033[0m")
     for i in classList:
@@ -95,11 +106,14 @@ def learn(lectureData,cookies,auth,memberSeq,percent=0):
                     print('\033[95m Fall back to newFileDownloadAPI\033[0m')
                     print('Downloading...')
                     data = APIWrapper.newFileDownload(cookies,auth,i['fileleDto']['fileDetailId'],host)
-                    if data == None:
-                        print('\033[91m 강의 다운로드에 실패했습니다.\033[0m')
-                    else:
-                        open(os.path.join(os.path.dirname(__file__),f"downloads/{i['fileleDto']['originalFileName'].replace('/','').replace('?','')}"),'a')
-                        open(os.path.join(os.path.dirname(__file__),f"downloads/{i['fileleDto']['originalFileName'].replace('/','').replace('?','')}"),'wb').write(data)
+                    #Work in progress
+                    try:
+                        wget.download(data,out=os.path.join(os.path.dirname(__file__),f"downloads/{i['fileleDto']['originalFileName'].replace('/','').replace('?','')}"))
+                    except:
+                        try:
+                            downloadFile(data,os.path.join(os.path.dirname(__file__),f"downloads/{i['fileleDto']['originalFileName'].replace('/','').replace('?','')}"))
+                        except:
+                            print('\n\033[91m 강의 다운로드에 실패했습니다.\033[0m')
         playTime = None
         runcount = 1
     except:

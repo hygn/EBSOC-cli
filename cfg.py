@@ -1,7 +1,7 @@
 import os
-cfgList = [['saveFile',str],['saveYTVideo',str],['saveEBSVideo',str],['playSpd',float],['log',str],['loginAttempt',int],['cfgLock',str],\
+cfgList = [['saveFile',str],['saveYTVideo',str],['saveEBSVideo',str],['playSpd',float],['log',str],['attempt',int],['requestTimeout',float],['cfgLock',str],\
     ['debug',str]]
-defaultCfg = ['yes','yes','yes',0,'yes',10,'no','no']
+defaultCfg = ['yes','yes','yes',0,'yes',10,1,'no','no']
 def readCfg():
     try:
         cfg = open(os.path.join(os.path.dirname(__file__),'EBSOC-cli.cfg'),'r').read()
