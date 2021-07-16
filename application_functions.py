@@ -49,6 +49,8 @@ def getIndex(List_,msgdepth):
                     if List_[i]['contentsTypeCode'] in ['006','012','018']:
                         tmplst.append(i)
                 return tmplst
+            elif ind == 'notice' and msgdepth == 1:
+                return ['notice']
             elif ind == 'back':
                 return ['back']
             elif ind == 'front':

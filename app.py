@@ -3,6 +3,7 @@ from cfg import *
 import APIWrapper
 import cookie
 import time
+import sys
 import os
 clear()
 host = cookie.getHost('')
@@ -13,13 +14,21 @@ host = cookie.getHost('')
 #https://www.youtube.com/watch?v=TyHITBLVrEg
 #https://www.youtube.com/watch?v=1QMfcLcH56o
 #https://www.youtube.com/watch?v=6iseNlvH2_s
+runOpt = None
+try:
+    if sys.argv[1] == 'all':
+        runOpt = 'all'
+    elif sys.argv[1] == 'alldoc':
+        runOpt = 'alldoc'
+except IndexError:
+    pass
 try:
     os.mkdir('downloads')
 except FileExistsError:
     pass
 debug = readCfg()['debug']
 if debug == 'yes': print(readCfg())
-if readCfg()['cfgLock'] != 'yes':
+if readCfg()['cfgLock'] != 'yes' and runOpt == None:
     decfg = input('edit config?(y)')
 else:
     decfg = 'n'
@@ -111,7 +120,10 @@ while True:
             print(finLessonList)
         printClassList(classList)
         printFinLessonList(finLessonList)
-        classIndex = getIndex(classList,len(msgdepth))[0]
+        if runOpt == None:
+            classIndex = getIndex(classList,len(msgdepth))[0]
+        else:
+            classIndex = runOpt
         if classIndex == 'front':
             msgdepth = []
         elif not isinstance(classIndex,str):
@@ -121,7 +133,7 @@ while True:
                 msgdepth.append(['lessonList',{}])
             except IndexError:
                 pass
-        elif classIndex[0:3] == 'all':
+        elif classIndex[0:3] == 'all' or runOpt[0:3] == 'all':
             finLessonNameList = []
             for i in finLessonList:
                 finLessonNameList.append(i['lsnNm'])
@@ -133,12 +145,14 @@ while True:
                     lectureList = APIWrapper.lectureList(cookies,auth,classurl,j['lessonSeq'],host)
                     printLectureList(lectureList)
                     for k in lectureList:
-                        if k['contentsTypeCode'] in ['006','012','018'] or classIndex != 'alldoc':
+                        if k['contentsTypeCode'] in ['006','012','018'] or classIndex != 'alldoc' or runOpt != 'alldoc':
                             if k['rtpgsRt'] != 100 and k['lessonName'] in finLessonNameList:
                                 try:
                                     learn(k,cookies,auth,memberSeq,percent=int(k['rtpgsRt']))
                                 except ValueError:
                                     learn(k,cookies,auth,memberSeq)
+        if runOpt != None:
+            exit()
         if debug != 'yes': clear()
     elif len(msgdepth) == 1:
         printLessonList(lessonList)
@@ -147,6 +161,8 @@ while True:
             msgdepth = []
         elif lessonIndex == 'back':
             msgdepth.pop(0)
+        elif lessonIndex == 'notice':
+            msgdepth.append(['notice',{}])
         else:
             try:
                 lectureList = APIWrapper.lectureList(cookies,auth,classList[classIndex]['classUrlPath'],lessonList[lessonIndex]['lessonSeq'],host)
@@ -155,7 +171,7 @@ while True:
             except IndexError:
                 pass
         if debug != 'yes': clear()
-    elif len(msgdepth) == 2:
+    elif len(msgdepth) == 2 and msgdepth[-1][0] == 'lectureList':
         printLectureList(lectureList)
         lectureIndex = getIndex(lectureList,len(msgdepth))
         if lectureIndex == ['front']:
@@ -165,6 +181,13 @@ while True:
         else:
             msgdepth.append(['learn',{}])
         if debug != 'yes': clear()
+    elif len(msgdepth) == 2 and msgdepth[-1][0] == 'notice':
+        print('notice - wip')
+        lectureIndex = getIndex([],len(msgdepth))
+        if lectureIndex == ['front']:
+            msgdepth = []
+        elif lectureIndex == ['back']:
+            msgdepth.pop(1)
     elif len(msgdepth) == 3:
         for i in lectureIndex:
             try:

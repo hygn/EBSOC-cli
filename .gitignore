@@ -1,2 +1,5 @@
 downloads
+build
+dist
+app.spec
 __pycache__
